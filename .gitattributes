@@ -1,0 +1,7 @@
+# Keep application source consistent across macOS, Windows and Linux.
+* text=auto eol=lf
+
+# Preserve upstream tools and corresponding source archives byte-for-byte.
+# Their original formatting is outside the application's whitespace checks.
+vendor/** -text -whitespace
+docs/media/** -text
