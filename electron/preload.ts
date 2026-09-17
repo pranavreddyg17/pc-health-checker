@@ -2,6 +2,10 @@ import { contextBridge, ipcRenderer } from 'electron';
 import type { DesktopAPI, Progress } from '../src/shared/types';
 
 const api: DesktopAPI = {
+  recoveryCases: () => ipcRenderer.invoke('recovery:list'),
+  createRecovery: () => ipcRenderer.invoke('recovery:create'),
+  recordRecoveryAction: (id, note) => ipcRenderer.invoke('recovery:action', id, note),
+  removeRecovery: (id) => ipcRenderer.invoke('recovery:remove', id),
   reliability: () => ipcRenderer.invoke('reliability:state'),
   checkReliability: () => ipcRenderer.invoke('reliability:check'),
   startReliability: (input) => ipcRenderer.invoke('reliability:start', input),

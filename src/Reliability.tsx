@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Recovery from './Recovery';
 import {
   Activity,
   ArrowDownToLine,
@@ -202,6 +203,7 @@ export default function Reliability({
       </section>
       {sample ? (
         <>
+          <Recovery snapshots={state?.snapshots ?? []} blocked={disabled || blocked} />
           <div className="reliability-summary" aria-label="Latest selected evidence summary">
             {(['critical', 'warning', 'unknown', 'clear'] as const).map((t) => (
               <div key={t} className={`health-count ${t}`}>

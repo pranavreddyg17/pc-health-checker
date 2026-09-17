@@ -29,26 +29,39 @@ export function collectIsolated(
       stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
     });
     let done = false;
-    const terminate = () => {
-      if (child.connected) child.send('cancel', () => {});
-      const kill = setTimeout(() => {
+    const terminate = (settle: () => void) => {
+      const killOwnedGroup = () => {
         try {
           if (process.platform !== 'win32' && child.pid) process.kill(-child.pid, 'SIGKILL');
           else child.kill('SIGKILL');
         } catch {
           /* already exited */
         }
-      }, 500);
-      kill.unref();
+      };
+      if (!child.pid || child.exitCode !== null || child.signalCode !== null) {
+        if (child.pid) killOwnedGroup();
+        settle();
+        return;
+      }
+      child.once('exit', () => {
+        clearTimeout(kill);
+        killOwnedGroup();
+        settle();
+      });
+      if (child.connected) child.send('cancel', () => {});
+      const kill = setTimeout(killOwnedGroup, 500);
     };
     const finish = (error?: Error, snapshot?: HealthSnapshot) => {
       if (done) return;
       done = true;
       clearTimeout(timer);
       signal.removeEventListener('abort', cancel);
-      if (error) terminate();
-      if (error) reject(error);
-      else resolve(snapshot!);
+      // Do not resolve/reject while our worker can still run. In particular,
+      // an unref'ed cleanup timer can disappear when the test runner exits.
+      terminate(() => {
+        if (error) reject(error);
+        else resolve(snapshot!);
+      });
     };
     const timer = setTimeout(
       () => finish(Error('The health worker exceeded its deadline and was terminated.')),

@@ -1,7 +1,7 @@
 {
   "name": "pchealth",
   "productName": "PC Health",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "Offline, evidence-based computer health diagnostics",
   "author": "PC Health",
@@ -28,7 +28,9 @@
     "test:layout": "node scripts/test-layout.mjs",
     "vendor:prepare": "node scripts/prepare-vendor.mjs",
     "dist:mac": "npm run build && node scripts/package-mac.mjs",
-    "dist:win": "npm run build && electron-builder --win nsis zip --x64 --publish never"
+    "dist:win": "npm run build && electron-builder --win nsis zip --x64 --publish never",
+    "test:recovery": "node scripts/test-recovery.mjs",
+    "install:local": "npm run build && node scripts/install-local.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",

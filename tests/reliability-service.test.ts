@@ -172,12 +172,18 @@ describe('isolated worker watchdog', () => {
   it('terminates a stuck worker within a deadline', async () => {
     const { dir } = await setup();
     const worker = path.join(dir, 'stuck.cjs');
-    await writeFile(worker, 'setInterval(()=>{},1000);');
+    const pidFile = path.join(dir, 'worker.pid');
+    await writeFile(
+      worker,
+      `require('node:fs').writeFileSync(${JSON.stringify(pidFile)},String(process.pid));setInterval(()=>{},1000);`,
+    );
     const started = Date.now();
-    await expect(collectIsolated(worker, new AbortController().signal, 100)).rejects.toThrow(
+    await expect(collectIsolated(worker, new AbortController().signal, 300)).rejects.toThrow(
       'deadline',
     );
     expect(Date.now() - started).toBeLessThan(2000);
+    const pid = Number(await readFile(pidFile, 'utf8'));
+    expect(() => process.kill(pid, 0)).toThrow();
   });
   it('rejects malformed worker output', async () => {
     const { dir } = await setup();

@@ -84,6 +84,10 @@ export interface Product {
   constraints: string[];
 }
 export interface DesktopAPI {
+  recoveryCases(): Promise<import('./recovery').RecoveryCase[]>;
+  createRecovery(): Promise<import('./recovery').RecoveryCase[]>;
+  recordRecoveryAction(id: string, note: string): Promise<import('./recovery').RecoveryCase[]>;
+  removeRecovery(id: string): Promise<import('./recovery').RecoveryCase[]>;
   reliability(): Promise<import('./reliability').MonitorState>;
   checkReliability(): Promise<import('./reliability').MonitorState>;
   startReliability(input: {

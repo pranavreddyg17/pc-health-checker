@@ -4,13 +4,21 @@
 
 PC Health helps you investigate an unreliable computer before buying replacement parts. Read the evidence a device actually exposes, follow a symptom-specific test, and keep a record of what changed. Built for everyday computer owners and technicians, with a futuristic desktop interface.
 
-**Version 0.7.0 · Development preview · macOS / Windows / Linux adapters**
+**Version 0.8.0 · Development preview · macOS / Windows / Linux adapters**
 
 [![Watch the 30-second PC Health demo](docs/media/demo-poster.png)](docs/media/pc-health-demo.mp4)
 
 **[Watch the 30-second demo](docs/media/pc-health-demo.mp4)** · [Install and share](SHARING.md) · [Telemetry coverage](TELEMETRY_COVERAGE.md)
 
 The demo shows a real macOS scan and an explicitly labeled example repair case. It was recorded with a disposable profile, separate from personal scan history.
+
+## New in 0.8: recovery verification
+
+Capture fault evidence before a repair, record the approved action you performed, and verify the same sources over repeated checks. Missing telemetry, counter resets, stale samples and critical regressions cannot produce a stable result. The original evidence remains attached. See [the research, verification policy and next implementation stages](SELF_HEALING_RESEARCH.md).
+
+The diagnostic watchdog also now waits for failed workers to exit, preventing orphaned collector processes. Automatic OS repair is not enabled. The video below the introduction shows the earlier 0.7 interface.
+
+On macOS, `npm run install:local` builds and replaces one main app in `~/Applications/PC Health.app`, using temporary build staging rather than leaving another runnable copy in the project.
 
 ## What you can do
 
@@ -89,7 +97,7 @@ npm run dist:mac   # macOS host: universal DMG + ZIP
 npm run dist:win   # Windows x64 installer + ZIP
 ```
 
-Packages are written to `release/0.7.0/`. The macOS script stages signing outside cloud-managed Documents folders. The vendor directory includes the drive-reader binaries, corresponding source and license notices; keep them together when distributing the app.
+Packages are written to `release/0.8.0/`. The macOS script stages signing outside cloud-managed Documents folders. The vendor directory includes the drive-reader binaries, corresponding source and license notices; keep them together when distributing the app.
 
 After building both platforms locally, validate their contents and generate checksums:
 
@@ -109,7 +117,7 @@ The manually triggered **Build shareable preview packages** GitHub Actions workf
 
 ## Verification and architecture
 
-The current suite contains **172 unit tests** covering parsing, missing and malformed readings, disk attribution, evidence interpretation, persistence and compatibility with older records. Desktop scripts exercise scans, repairs, workload recordings, reliability, accessibility and window layouts.
+The current suite contains **180 unit tests** covering parsing, missing and malformed readings, disk attribution, evidence interpretation, persistence and compatibility with older records. Desktop scripts exercise scans, repairs, workload recordings, reliability, accessibility and window layouts.
 
 ```sh
 npm test

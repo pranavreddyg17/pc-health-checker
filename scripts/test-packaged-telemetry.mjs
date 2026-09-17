@@ -1,5 +1,5 @@
 import { _electron as electron, expect } from '@playwright/test';
-import { mkdtemp, rm, access, mkdir } from 'node:fs/promises';
+import { mkdtemp, rm, access, mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { navigate } from './ui-navigation.mjs';
@@ -32,7 +32,7 @@ try {
     timeout: 65000,
   });
   const scan = (await page.evaluate(() => window.pcHealth.bootstrap())).scans[0];
-  expect(scan.appVersion).toBe('0.7.0');
+  expect(scan.appVersion).toBe(JSON.parse(await readFile('package.json', 'utf8')).version);
   expect(scan.state).toBe('complete');
   const checks = scan.components.flatMap((c) => c.checks);
   if (process.platform === 'darwin') {

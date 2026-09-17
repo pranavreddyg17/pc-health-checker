@@ -14,6 +14,7 @@ import { ReliabilityService } from './reliability/service';
 import { ReliabilityStore } from './reliability/store';
 import { collectIsolated } from './reliability/isolate';
 import { RepairStore } from './repairs';
+import { RecoveryStore } from './recovery';
 import { repairReport } from '../src/shared/repairs';
 import { writeFile } from 'node:fs/promises';
 import { scanComputer } from './scanner';
@@ -30,6 +31,7 @@ let controller: AbortController | null = null;
 let current: Scan | undefined;
 let history: HistoryStore;
 let repairs: RepairStore;
+let recovery: RecoveryStore;
 let reliability: ReliabilityService;
 let investigations: InvestigationService;
 let recordingRequested = false;
@@ -52,6 +54,24 @@ const ownsWindow = (event: IpcMainInvokeEvent) => {
     throw new Error('Untrusted request.');
 };
 function installHandlers() {
+  ipcMain.handle('recovery:list', (event) => {
+    ownsWindow(event);
+    return recovery.list();
+  });
+  ipcMain.handle('recovery:create', async (event) => {
+    ownsWindow(event);
+    const state = await reliability.snapshot();
+    if (state.collecting || !state.snapshots[0]) throw Error('Complete a reliability check first.');
+    return recovery.create(state.snapshots[0]);
+  });
+  ipcMain.handle('recovery:action', (event, id: unknown, note: unknown) => {
+    ownsWindow(event);
+    return recovery.action(id, note);
+  });
+  ipcMain.handle('recovery:remove', (event, id: unknown) => {
+    ownsWindow(event);
+    return recovery.remove(id);
+  });
   ipcMain.handle('reliability:state', (event) => {
     ownsWindow(event);
     return reliability.snapshot();
@@ -308,6 +328,7 @@ async function createWindow() {
 app.whenReady().then(async () => {
   history = new HistoryStore(path.join(app.getPath('userData'), 'history'));
   repairs = new RepairStore(path.join(app.getPath('userData'), 'history'));
+  recovery = new RecoveryStore(path.join(app.getPath('userData'), 'history'));
   investigations = new InvestigationService(
     new InvestigationStore(path.join(app.getPath('userData'), 'history')),
     (snapshot) => {
